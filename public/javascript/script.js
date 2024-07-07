@@ -81,7 +81,7 @@ function reverseGeocode(latlng, callback) {
     geocoder.options.geocoder.reverse(latlng, map.options.crs.scale(map.getZoom()), function (results) {
         var r = results[0];
         if (r) {
-            callback(r.name);
+            if (callback) callback(r.name);
         }
     });
 }
@@ -94,41 +94,12 @@ function updateRoutingControl() {
 
     // Ensure the fixed marker always has the red icon
     fixedMarker.setIcon(redIcon);
-
-    // Log the name of the destination if there are waypoints
-    if (routingControl.getWaypoints().length > 1) {
-        const lastWaypoint = routingControl.getWaypoints()[routingControl.getWaypoints().length - 1].latLng;
-        if (lastWaypoint) {
-            // reverseGeocode(lastWaypoint, function(name) {
-            //     var element = document.querySelector("#from span")
-            //     element.innerHTML=<p> ${name} </p>
-            //     console.log("Destination name:", name);
-            // });
-        }
-    }
-
-    // Update the panel content with start and end addresses
-    // updatePanelContent();
 }
-
-// Function to update panel content with start and end addresses
-// function updatePanelContent() {
-//     const fromElement = document.querySelector('#from h5');
-//     const toElement = document.querySelector('#to #toAddress');
-
-//     if (routingControl.getWaypoints().length > 1) {
-//         const fromAddress = routingControl.getWaypoints()[0].name || 'Your Location';
-//         const toAddress = routingControl.getWaypoints()[1].name || 'Destination';
-        
-//         fromElement.innerHTML = From <i class="ri-arrow-right-double-fill"></i> ${fromAddress};
-//         toElement.innerHTML = ${toAddress};
-//     }
-// }
 
 // Add a click event listener to the map
 map.on('click', function (e) {
     var latlng = e.latlng;
-    reverseGeocode(latlng, function(name) {
+    reverseGeocode(latlng, function (name) {
         addMarker(latlng, name);
     });
 });
@@ -136,12 +107,13 @@ map.on('click', function (e) {
 // Add an event listener for the routesfound event to get all route details
 routingControl.on('routesfound', function (e) {
     var routes = e.routes;
+    console.log(routes); // Log all route details to console
     var distances = (routes[0].summary.totalDistance).toFixed(3);
     const fromElement = document.querySelector('#distances h1');
-    if(distances > 1000) {
-        fromElement.innerHTML =` ${(distances/1000).toFixed(2)}km` ;
+    if (distances > 1000) {
+        fromElement.innerHTML = `${(distances / 1000).toFixed(2)}km`;
     } else {
-        fromElement.innerHTML = `${(distances)}m` ;
+        fromElement.innerHTML = `${distances}m`;
     }
 
     // Ensure the fixed marker always has the red icon
@@ -152,9 +124,9 @@ routingControl.on('routesfound', function (e) {
     if (waypoints.length > 1) {
         const lastWaypoint = waypoints[waypoints.length - 1].latLng;
         if (lastWaypoint) {
-            reverseGeocode(lastWaypoint, function(name) {
-                var element = document.querySelector("#toAddress")
-                  element.innerHTML = name;
+            reverseGeocode(lastWaypoint, function (name) {
+                var element = document.querySelector("#toAddress");
+                element.innerHTML = name;
             });
         }
     }
